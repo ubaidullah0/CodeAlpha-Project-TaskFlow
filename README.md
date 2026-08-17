@@ -97,3 +97,21 @@ Serves the Vanilla JS frontend on `http://localhost:3000`.
 - Build command: `npm install`
 - Start command: `npm start`
 - Set Environment Variables: `PORT`, `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_URL`.
+
+## Security & Configuration
+
+### Environment Variables
+- The real .env file MUST NEVER be committed to Git.
+- Use .env.example as a template for developers.
+- Do NOT place any real credentials, API keys, or SMTP passwords in .env.example.
+
+### Backend Security
+- **API Keys & Secrets**: All private operations, database connections, and email services happen on the backend.
+- **Rate Limiting**: Critical endpoints (like Login, Register, Forgot Password) are protected with rate limiting to prevent brute-force attacks.
+- **HTTP Headers**: Helmet is used to secure Express HTTP headers against well-known web vulnerabilities.
+- **Validation**: Strict regex validation prevents malicious injection and malformed requests.
+
+### Security Best Practices
+- **Rotating Compromised Keys**: If a secret is ever accidentally pushed to GitHub, revoke it immediately from the service provider (e.g., Google App Passwords) rather than just deleting the file.
+- **Frontend**: The frontend contains NO secrets. Any private API calls must securely run on the backend.
+
