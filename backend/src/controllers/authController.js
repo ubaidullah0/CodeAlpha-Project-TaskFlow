@@ -173,8 +173,7 @@ const forgotPassword = async (req, res) => {
     }
 
     res.status(200).json({ 
-      message: 'If an account with that email exists, we have sent a verification code.',
-      dev_otp: otp + errorMessage
+      message: 'If an account with that email exists, we have sent a verification code.'
     });
   } catch (error) {
     console.error('Forgot password error:', error);
