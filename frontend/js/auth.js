@@ -113,8 +113,11 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.disabled = true;
       btn.textContent = 'Sending...';
       try {
-        await api.post('/auth/forgot-password', { email });
+        const response = await api.post('/auth/forgot-password', { email });
         localStorage.setItem('reset_email', email);
+        if (response.dev_otp) {
+          alert(`[TESTING MODE] Your OTP is: ${response.dev_otp}`);
+        }
         window.location.href = 'verify-otp.html';
       } catch (error) {
         showAlert(error.message);

@@ -102,6 +102,9 @@ const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: process.env.SMTP_PORT || 587,
   secure: false,
+  connectionTimeout: 5000,
+  greetingTimeout: 5000,
+  socketTimeout: 5000,
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASSWORD,
@@ -155,7 +158,10 @@ const forgotPassword = async (req, res) => {
       console.log(`\n\n[DEVELOPMENT OTP for ${email}]: ${otp}\n(SMTP_USER not configured in .env)\n\n`);
     }
 
-    res.status(200).json({ message: 'If an account with that email exists, we have sent a verification code.' });
+    res.status(200).json({ 
+      message: 'If an account with that email exists, we have sent a verification code.',
+      dev_otp: otp // Added for testing purposes so the user can easily verify without email
+    });
   } catch (error) {
     console.error('Forgot password error:', error);
     res.status(500).json({ error: 'Server error processing request' });
