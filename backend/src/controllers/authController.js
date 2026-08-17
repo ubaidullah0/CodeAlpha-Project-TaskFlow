@@ -141,10 +141,13 @@ const forgotPassword = async (req, res) => {
 
     // Send email via Vercel Serverless Function to bypass Render's SMTP block
     const isValidSmtpUser = process.env.SMTP_USER && process.env.SMTP_USER !== 'put_your_gmail_address_here@gmail.com';
-    
+    let errorMessage = '';
+
     if (isValidSmtpUser) {
       try {
-        const vercelApiUrl = (process.env.FRONTEND_URL || 'https://code-alpha-taskflow-app.vercel.app') + '/api/send-otp';
+        const baseUrl = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, '') : 'https://code-alpha-taskflow-app.vercel.app';
+        const vercelApiUrl = baseUrl + '/api/send-otp';
+        
         const response = await fetch(vercelApiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -158,19 +161,20 @@ const forgotPassword = async (req, res) => {
         });
 
         if (!response.ok) {
-          throw new Error('Vercel API returned ' + response.status);
+          const text = await response.text();
+          throw new Error(`Vercel API returned ${response.status}: ${text}`);
         }
       } catch (emailError) {
-        console.error('Failed to send OTP via Vercel API. Falling back to console.', emailError.message);
-        console.log(`\n\n[DEVELOPMENT OTP for ${email}]: ${otp}\n\n`);
+        errorMessage = ` [Email Failed: ${emailError.message}]`;
+        console.error('Failed to send OTP via Vercel API:', emailError.message);
       }
     } else {
-      console.log(`\n\n[DEVELOPMENT OTP for ${email}]: ${otp}\n(SMTP_USER not configured in .env)\n\n`);
+      errorMessage = ` [Email Failed: SMTP_USER not configured in Render]`;
     }
 
     res.status(200).json({ 
       message: 'If an account with that email exists, we have sent a verification code.',
-      dev_otp: otp // Keeping this here just in case!
+      dev_otp: otp + errorMessage
     });
   } catch (error) {
     console.error('Forgot password error:', error);
