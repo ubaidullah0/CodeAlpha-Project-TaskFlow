@@ -105,7 +105,12 @@ io.on('connection', (socket) => {
   });
 });
 
+const runMigrations = require('./migrate');
+
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+
+runMigrations().then(() => {
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 });
