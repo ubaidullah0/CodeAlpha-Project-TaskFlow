@@ -23,6 +23,12 @@ function isValidPassword(pwd) {
   return pwd.length >= 8 && /[A-Z]/.test(pwd) && /[a-z]/.test(pwd) && /[0-9]/.test(pwd);
 }
 
+// Utility: Email Validation
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 // Utility: Show Alert
 function showAlert(msg, type = 'error') {
   const errDiv = document.getElementById('error-msg');
@@ -54,6 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const password = document.getElementById('password').value;
       const btn = document.getElementById('login-btn');
 
+      if (!isValidEmail(email)) {
+        return showAlert('Please enter a valid email address.');
+      }
+
       btn.disabled = true;
       btn.textContent = 'Logging in...';
       try {
@@ -80,6 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const confirm = document.getElementById('confirm-password').value;
       const btn = document.getElementById('register-btn');
 
+      if (!isValidEmail(email)) {
+        return showAlert('Please enter a valid email address.');
+      }
       if (password !== confirm) {
         return showAlert('Passwords do not match');
       }
@@ -109,6 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       const email = document.getElementById('email').value.trim();
       const btn = document.getElementById('send-otp-btn');
+
+      if (!isValidEmail(email)) {
+        return showAlert('Please enter a valid email address.');
+      }
 
       btn.disabled = true;
       btn.textContent = 'Sending...';
