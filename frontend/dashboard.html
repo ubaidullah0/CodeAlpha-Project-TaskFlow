@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - TaskFlow</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); text-align: center; }
+    .stat-value { font-size: 2rem; font-weight: 700; color: var(--primary-color); margin-bottom: 0.25rem; }
+    .stat-label { font-size: 0.875rem; color: var(--text-muted); }
+    
+    .dashboard-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
+    @media (max-width: 900px) { .dashboard-layout { grid-template-columns: 1fr; } }
+    
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+    
+    .list-container { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+    .list-item { background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; display: flex; flex-direction: column; }
+    .list-item:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    
+    .progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 0.5rem; }
+    .progress-fill { height: 100%; background: var(--primary-color); transition: width 0.3s; }
+    
+    .activity-feed { display: flex; flex-direction: column; gap: 1rem; }
+    .activity-item { display: flex; gap: 1rem; align-items: flex-start; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary-color); margin-top: 5px; flex-shrink: 0; }
+    .activity-content p { margin: 0; font-size: 0.875rem; }
+    .activity-time { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+    
+    .dropdown { position: absolute; right: 0; top: 100%; margin-top: 0.5rem; width: 320px; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 100; max-height: 400px; overflow-y: auto; }
+    .notif-item { padding: 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer; }
+    .notif-item:hover { background: #f8fafc; }
+    .notif-item.unread { background: #eff6ff; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="nav-brand" style="justify-content: flex-start; margin-bottom: 2rem;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 28px; height: 28px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        TaskFlow
+      </div>
+      <ul>
+        <li style="margin-bottom: 1rem;"><a href="dashboard.html" style="font-weight: 600; color: var(--primary-color);">Dashboard</a></li>
+      </ul>
+      <div style="margin-top: auto;">
+        <p id="user-name" class="text-muted" style="margin-bottom: 0.5rem; font-weight: 500; font-size: 0.875rem;"></p>
+        <button onclick="logout()" class="btn btn-secondary" style="width: 100%;">Log Out</button>
+      </div>
+    </aside>
+    
+    <main class="main-content">
+      <header class="topbar" style="display: flex; justify-content: space-between; align-items: center;">
+        <h3>My Workspace</h3>
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+          <div id="realtime-status" style="font-size: 0.875rem; color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
+            <div id="realtime-dot" style="width: 8px; height: 8px; background-color: #10b981; border-radius: 50%;"></div>
+            <span id="realtime-text">Live</span>
+          </div>
+          <div style="position: relative;">
+            <button id="notif-btn" class="btn btn-secondary btn-sm" style="position: relative; padding: 0.5rem;">
+              🔔 <span id="notif-badge" class="badge hidden" style="position: absolute; top: -8px; right: -8px; background: #ef4444; color: white;">0</span>
+            </button>
+            <div id="notif-dropdown" class="dropdown hidden">
+              <div style="padding: 1rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <strong>Notifications</strong>
+                <button id="mark-all-read" class="btn btn-sm" style="font-size: 0.75rem;">Mark all read</button>
+              </div>
+              <div id="notif-list">
+                <p style="padding: 1rem; text-align: center;" class="text-muted">Loading...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <div class="content-area">
+        <!-- Stats Section -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-projects">-</div>
+            <div class="stat-label">Total Projects</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-assigned">-</div>
+            <div class="stat-label">Assigned Tasks</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-completed">-</div>
+            <div class="stat-label">Completed Tasks</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-alerts">-</div>
+            <div class="stat-label">Unread Alerts</div>
+          </div>
+        </div>
+
+        <!-- Quick Actions Row -->
+        <div class="section-header" style="margin-top: 1rem; border-bottom: none;">
+          <h2>Quick Actions</h2>
+        </div>
+        <div class="quick-actions" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem;">
+          <button class="btn btn-primary" onclick="document.getElementById('create-project-modal').classList.remove('hidden')" style="flex: 1; min-width: 200px;">👥 Create Group Project</button>
+          <button class="btn btn-secondary" onclick="window.location.href='#assigned-tasks-list'" style="flex: 1; min-width: 200px;">✓ Manage Tasks</button>
+          <button class="btn btn-secondary" onclick="window.location.href='#projects-list'" style="flex: 1; min-width: 200px;">💬 Team Communication</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('notif-dropdown').classList.toggle('hidden')" style="flex: 1; min-width: 200px;">🔔 Notifications</button>
+        </div>
+
+        <div class="dashboard-layout">
+          <!-- Main Left Column -->
+          <div class="main-column">
+            
+            <!-- My Assigned Tasks -->
+            <div class="section-header">
+              <h2>My Assigned Tasks</h2>
+            </div>
+            <div id="assigned-tasks-list" class="list-container">
+              <p class="text-muted">Loading assigned tasks...</p>
+            </div>
+
+            <!-- My Projects -->
+            <div class="section-header" style="margin-top: 2rem;">
+              <h2>My Projects</h2>
+            </div>
+            <div id="projects-list" class="list-container">
+              <p class="text-muted">Loading projects...</p>
+            </div>
+
+          </div>
+
+          <!-- Right Column / Sidebar -->
+          <div class="side-column">
+            <div style="background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem;">
+              <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Recent Activity</h3>
+              <div id="activity-feed" class="activity-feed">
+                <p class="text-muted">Loading activity...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Create Project Modal -->
+  <div id="create-project-modal" class="modal-backdrop hidden">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3>Create New Project</h3>
+        <button class="btn btn-secondary" onclick="document.getElementById('create-project-modal').classList.add('hidden')">X</button>
+      </div>
+      <form id="create-project-form">
+        <div class="form-group">
+          <label class="form-label" for="project-name">Project Name</label>
+          <input class="form-control" type="text" id="project-name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="project-desc">Description</label>
+          <textarea class="form-control" id="project-desc" rows="3"></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('create-project-modal').classList.add('hidden')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Project Modal -->
+  <div id="edit-project-modal" class="modal-backdrop hidden">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3>Edit Project</h3>
+        <button class="btn btn-secondary" onclick="document.getElementById('edit-project-modal').classList.add('hidden')">X</button>
+      </div>
+      <form id="edit-project-form">
+        <input type="hidden" id="edit-project-id">
+        <div class="form-group">
+          <label class="form-label" for="edit-project-name">Project Name</label>
+          <input class="form-control" type="text" id="edit-project-name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-project-desc">Description</label>
+          <textarea class="form-control" id="edit-project-desc" rows="3"></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('edit-project-modal').classList.add('hidden')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <script src="js/toast.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "taskflow-project-manager",
+  "version": "1.0.0",
+  "description": "A modern, collaborative Kanban-style project management application built as a CodeAlpha project.",
+  "main": "index.js",
+  "scripts": {
+    "dev:frontend": "serve frontend -p 3000",
+    "dev:backend": "cd backend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}
