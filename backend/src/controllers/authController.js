@@ -139,19 +139,29 @@ const forgotPassword = async (req, res) => {
       [user.id, otpHash, expiresAt]
     );
 
-    // Send email
+    // Send email via Vercel Serverless Function to bypass Render's SMTP block
     const isValidSmtpUser = process.env.SMTP_USER && process.env.SMTP_USER !== 'put_your_gmail_address_here@gmail.com';
     
     if (isValidSmtpUser) {
       try {
-        await transporter.sendMail({
-          from: `"TaskFlow" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
-          to: email,
-          subject: 'TaskFlow Password Reset Verification',
-          text: `Hello ${user.name},\n\nYour TaskFlow verification code is:\n\n${otp}\n\nThis code expires in 2 minutes.\nIf you did not request this, please ignore this email.`,
+        const vercelApiUrl = (process.env.FRONTEND_URL || 'https://code-alpha-taskflow-app.vercel.app') + '/api/send-otp';
+        const response = await fetch(vercelApiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            name: user.name,
+            otp,
+            smtpUser: process.env.SMTP_USER,
+            smtpPass: process.env.SMTP_PASSWORD
+          })
         });
+
+        if (!response.ok) {
+          throw new Error('Vercel API returned ' + response.status);
+        }
       } catch (emailError) {
-        console.error('Failed to send OTP email (SMTP config issue). Falling back to console logging.', emailError.message);
+        console.error('Failed to send OTP via Vercel API. Falling back to console.', emailError.message);
         console.log(`\n\n[DEVELOPMENT OTP for ${email}]: ${otp}\n\n`);
       }
     } else {
@@ -160,7 +170,7 @@ const forgotPassword = async (req, res) => {
 
     res.status(200).json({ 
       message: 'If an account with that email exists, we have sent a verification code.',
-      dev_otp: otp // Added for testing purposes so the user can easily verify without email
+      dev_otp: otp // Keeping this here just in case!
     });
   } catch (error) {
     console.error('Forgot password error:', error);
