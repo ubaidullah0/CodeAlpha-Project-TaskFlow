@@ -1,117 +1,73 @@
-# TaskFlow
+<div align="center">
+  <h1>🚀 TaskFlow - Full-Stack Kanban Project Manager</h1>
+  <p>A modern, real-time, collaborative project management application built for the <b>CodeAlpha Internship</b>.</p>
 
-A modern, collaborative Kanban-style project management application built as a CodeAlpha project.
+  <p>
+    <img src="https://img.shields.io/badge/Frontend-Vanilla_JS-f7df1e?style=for-the-badge&logo=javascript&logoColor=black" alt="Vanilla JS" />
+    <img src="https://img.shields.io/badge/Backend-Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
+    <img src="https://img.shields.io/badge/API-Express.js-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
+    <img src="https://img.shields.io/badge/Database-PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+    <img src="https://img.shields.io/badge/RealTime-Socket.io-010101?style=for-the-badge&logo=socketdotio&logoColor=white" alt="Socket.io" />
+  </p>
+</div>
 
-## Tech Stack
-- **Frontend**: HTML5, CSS3, Vanilla JavaScript
-- **Backend**: Node.js, Express.js
-- **Database**: PostgreSQL
-- **Real-Time**: Socket.IO
-- **Auth**: JWT & bcrypt
-
-## Features (Phases 1-7)
-1. **Authentication**: Register, Login, JWT auth.
-2. **Projects & Teams**: Create projects, add team members.
-3. **Project Boards**: Dynamic Kanban columns (To Do, In Progress, Review, Done).
-4. **Task Management**: Create, edit, delete tasks, assign users, drag-and-drop between columns.
-5. **Comments**: Task-level communication.
-6. **Notifications**: Alerts for task assignment, project invites, and new comments.
-7. **Real-Time Updates**: Socket.IO integration for instant sync across clients.
-
-# Local Development on Windows
-
-### 1. Prerequisites
-- **Node.js (v18+)**: Required to run the backend and the local frontend server.
-- **PostgreSQL**: Required to store user and project data.
-
-### 2. First-Time Setup
-TaskFlow includes automated setup scripts for Windows to make getting started easy.
-
-1. Open the project folder (`taskflow-project-manager`).
-2. Double-click `scripts\windows\setup.bat`. This will:
-   - Check your environment (Node.js, npm).
-   - Install all required dependencies for the root and backend.
-   - Create a `backend\.env` file from the template.
-
-### 3. Database Setup
-1. Create a PostgreSQL database named `taskflow`.
-2. Open `backend\.env` and configure your `DATABASE_URL` with your actual credentials.
-   *(Example: `postgresql://postgres:password@localhost:5432/taskflow`)*
-   **Note: Never commit your `.env` file or hardcode real passwords.**
-3. Run the `database\schema.sql` script against your database to build the tables.
-
-### 4. Starting the Application
-
-#### Option A: One-Click Startup (Recommended)
-Double-click **`start.bat`** in the root directory.
-This checks your environment and launches both servers concurrently.
-
-#### Option B: VS Code Workflow
-1. Open the project folder in VS Code.
-2. Go to **Terminal** > **Run Task**.
-3. Select **Start TaskFlow** to launch both servers.
-   *(You can also use the Run and Debug panel to start "Debug Full Stack")*.
-
-#### Option C: Terminal
-From the project root:
-```bash
-npm run dev
-```
-
-### 5. Running Services Separately
-If you prefer to run services individually:
-
-**Backend Only:**
-```bash
-cd backend
-npm run dev
-```
-Runs the Express API on `http://localhost:5000`.
-
-**Frontend Only:**
-```bash
-npm run dev:frontend
-```
-Serves the Vanilla JS frontend on `http://localhost:3000`.
-
-### 6. Expected URLs
-- **Frontend App**: `http://localhost:3000`
-- **Backend API**: `http://localhost:5000`
-- **Health Check**: `http://localhost:5000/api/health`
-
-### 7. Stopping the Application
-- If you ran via terminal, simply press `Ctrl+C`.
-- If you used `start.bat` and it's running in the background, you can double-click **`stop.bat`** to safely terminate the processes on ports 3000 and 5000.
+## 🌐 Live Demo
+- **Frontend (Vercel):** [https://code-alpha-taskflow-app.vercel.app](https://code-alpha-taskflow-app.vercel.app)
+- **Backend API (Render):** [https://codealpha-project-taskflow.onrender.com](https://codealpha-project-taskflow.onrender.com)
 
 ---
 
-## Deployment Preparation
+## ✨ Key Features
+TaskFlow is a robust, full-stack application designed to mirror professional tools like Jira or Trello. 
+- 🔐 **Secure Authentication**: JWT-based login, registration, and strict email format validation.
+- 🔑 **OTP Password Reset**: Fully functional password recovery using secure OTPs sent to your email.
+- 👥 **Team Collaboration**: Create projects and invite team members dynamically.
+- 📋 **Kanban Boards**: Drag-and-drop tasks across dynamic columns (To Do, In Progress, Review, Done).
+- ⚡ **Real-Time Sync**: Socket.io integration instantly syncs board changes across all active users.
+- 💬 **Task Comments**: Real-time commenting system on individual tasks for team communication.
+- 🔔 **Live Notifications**: Instant bell alerts for task assignments, project invites, and new comments.
+- 📱 **Fully Responsive**: Beautiful UI that scales perfectly across desktops, tablets, and mobile devices.
 
-### Frontend (Vercel)
-- The frontend is ready to deploy directly to Vercel. Connect your GitHub repository to Vercel and it will pick up the `vercel.json` routing.
-- The app automatically connects to `http://localhost:5000` in local mode and your deployed Render URL in production (configure the domain in `frontend/js/api.js` and `frontend/js/board.js`).
+---
 
-### Backend (Render)
-- Connect your GitHub repository to Render as a Web Service.
-- Set the root directory to `backend`.
-- Build command: `npm install`
-- Start command: `npm start`
-- Set Environment Variables: `PORT`, `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_URL`.
+## 🏗️ Architecture & Security
+This project was built with security and scalability as top priorities:
+- **Serverless SMTP Bypass**: Uses a clever Vercel Serverless Function architecture to reliably deliver emails, bypassing Render's strict free-tier SMTP blocks.
+- **Rate Limiting & Helmet**: API endpoints are guarded against brute-force attacks and secured with standard HTTP headers.
+- **Zero-Secret Frontend**: Sensitive API keys and database credentials are strictly isolated to the backend environment variables.
+- **Automated Migrations**: PostgreSQL database schema auto-migrates securely upon server boot.
 
-## Security & Configuration
+---
 
-### Environment Variables
-- The real .env file MUST NEVER be committed to Git.
-- Use .env.example as a template for developers.
-- Do NOT place any real credentials, API keys, or SMTP passwords in .env.example.
+## 💻 Local Setup & Development (Windows)
 
-### Backend Security
-- **API Keys & Secrets**: All private operations, database connections, and email services happen on the backend.
-- **Rate Limiting**: Critical endpoints (like Login, Register, Forgot Password) are protected with rate limiting to prevent brute-force attacks.
-- **HTTP Headers**: Helmet is used to secure Express HTTP headers against well-known web vulnerabilities.
-- **Validation**: Strict regex validation prevents malicious injection and malformed requests.
+TaskFlow includes automated `.bat` scripts to make Windows deployment seamless.
 
-### Security Best Practices
-- **Rotating Compromised Keys**: If a secret is ever accidentally pushed to GitHub, revoke it immediately from the service provider (e.g., Google App Passwords) rather than just deleting the file.
-- **Frontend**: The frontend contains NO secrets. Any private API calls must securely run on the backend.
+### 1. Prerequisites
+- **Node.js (v18+)**
+- **PostgreSQL**
 
+### 2. Quick Install
+1. Clone the repository and open the folder.
+2. Double-click `windows-setup\install.bat`. This automatically installs all frontend and backend dependencies.
+
+### 3. Environment & Database Configuration
+1. Create a PostgreSQL database named `taskflow`.
+2. Configure your `backend/.env` file using the provided `.env.example` as a template.
+3. Add your standard PostgreSQL connection string, a strong JWT Secret, and your SMTP credentials.
+
+### 4. Start the Servers
+Double-click **`windows-setup\start_project.bat`**. This powerful script will launch the PostgreSQL database connection, boot the Express backend on port `5000`, and start the Frontend server on port `3000` simultaneously.
+
+---
+
+## 🚀 Deployment
+
+- **Frontend**: Deployed to Vercel. Features a serverless API function to handle secure SMTP requests.
+- **Backend**: Deployed as a Node.js Web Service on Render. 
+- **Database**: Hosted on Render PostgreSQL.
+
+<div align="center">
+  <br />
+  <p><i>Developed by <b>Obaidullah (Obaid Khan)</b> for the CodeAlpha Internship.</i></p>
+</div>
